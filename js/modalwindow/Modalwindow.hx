@@ -231,16 +231,24 @@ class Modalwindow {
 		if (length <= 0) onLoaded();
 
 		/**
+		 * Load counter
+		 * @return
+		 */
+		function loadCounter():Void {
+
+			counter++;
+			if (length <= counter) onLoaded();
+
+		}
+
+		/**
 		 * Load image
 		 * @return
 		 */
 		function loadImage(jTarget:JQuery):Void {
 
 			var image : Image = new Image();
-			image.onload = function() {
-				counter++;
-				if (length <= counter) onLoaded();
-			}
+			image.onload = loadCounter;
 			image.src = jTarget.prop('src');
 
 		}
@@ -251,12 +259,19 @@ class Modalwindow {
 		 */
 		function loadVideo(jTarget:JQuery):Void {
 
-			// var video  : VideoElement = cast jTarget.clone().get(0);
-			// video.oncanplay = function() {
-			// 	video.remove();
-				counter++;
-				if (length <= counter) onLoaded();
-			// }
+			var video : VideoElement = cast jTarget.get(0);
+			
+			if (video.readyState == 4) {
+
+				video.currentTime = 0;
+				loadCounter();
+
+			} else {
+
+				jTarget.one({ 'canplay':loadCounter });
+				video.load();
+
+			}
 
 		}
 
