@@ -386,6 +386,11 @@ class Slider {
 			var x : Float = basepoint - (touchPoint - movePoint);
 			setSliderX(x);
 
+			/**
+			 * Scroll event cancel
+			 */
+			event.preventDefault();
+
 		}
 
 		/**
