@@ -16,8 +16,8 @@ import js.jquery.JQuery;
 import js.jquery.Event;
 
 typedef Setting = {
-	?duration : Int,
-	?easing   : String
+	?duration:Int,
+	?easing  :String
 }
 
 class Slider {
@@ -26,73 +26,73 @@ class Slider {
      * Frame
      * @type {JQuery} 
      */
-	private var _jParent : JQuery;
+	private var _jParent:JQuery;
 
 	/** 
      * Moving board
      * @type {JQuery} 
      */
-	private var _jSlider : JQuery;
+	private var _jSlider:JQuery;
 
 	/** 
      * Slides
      * @type {JQuery} 
      */
-	private var _jSlides : JQuery;
+	private var _jSlides:JQuery;
 
 	/** 
      * Slide navi
      * @type {JQuery} 
      */
-	private var _jNavi : JQuery;
+	private var _jNavi:JQuery;
 
 	/** 
      * Slide controller
      * @type {JQuery} 
      */
-	private var _jController : JQuery;
+	private var _jController:JQuery;
 
 	/** 
      * Current index
      * @type {Int} 
      */
-	private var _index : Int;
+	private var _index:Int;
 
 	/** 
      * Slider catch
      * @type {Bool} 
      */
-	private var _isCatch : Bool;
+	private var _isCatch:Bool;
 
 	/** 
      * Slideshow timer manager
      * @type {Timer} 
      */
-	private var _timer : Timer;
+	private var _timer:Timer;
 
 	/** 
      * Slideshow timer
      * @type {Int} 
      */
-	private var _timems : Int;
+	private var _timems:Int;
 
 	/** 
      * Moving slider speed
      * @type {Int} 
      */
-	public var DURATION : Int = 350;
+	public var DURATION:Int = 350;
 
 	/** 
      * Moving slider easing
      * @type {String} 
      */
-	public var EASING : String = null;
+	public var EASING:String = null;
 
 	/** 
      * On slider Moved
      * @type {Int} -> {Void}
      */
-	public var onMoved : Int->JQuery->Void;
+	public var onMoved:Int->JQuery->Void;
 
 	/**
 	 * This is an instance of this class
@@ -111,7 +111,7 @@ class Slider {
 
 		if (setting == null) setting = {};
 		if (Reflect.hasField(setting,'duration')) DURATION = setting.duration;
-		if (Reflect.hasField(setting,'easing')  ) EASING = setting.easing;
+		if (Reflect.hasField(setting,'easing')  ) EASING   = setting.easing;
 
 		initNavi();
 		initController();
@@ -139,7 +139,7 @@ class Slider {
 		 */
 		public function onResize():Void {
 
-			var x : Float = _jSlides.outerWidth() * _index;
+			var x:Float = _jSlides.outerWidth() * _index;
 			setSliderX(-x);
 
 		}
@@ -157,7 +157,7 @@ class Slider {
 			_timer  = new Timer(timems);
 			_timer.run = function() {
 
-				var index : Int = _index + 1;
+				var index:Int = _index + 1;
 				if ( index < 0 || _jSlides.length <= index ) index = 0;
 				jump(index);
 
@@ -184,8 +184,8 @@ class Slider {
 	 */
 	private function move():Void {
 
-		var distance : Float  = _jSlides.outerWidth() * _index;
-		var animater : JQuery = new JQuery({ x:getSliderX() });
+		var distance:Float  = _jSlides.outerWidth() * _index;
+		var animater:JQuery = new JQuery({ x:getSliderX() });
 
 		stop();
 		setCurrent(_index);
@@ -218,10 +218,10 @@ class Slider {
 		}
 
 		animater.animate({ x:-distance },{
-			duration: DURATION,
-			easing  : EASING,
-			step    : step,
-			done    : done
+			duration:DURATION,
+			easing  :EASING,
+			step    :step,
+			done    :done
 		});
 
 	}
@@ -232,7 +232,7 @@ class Slider {
 	 */
 	private function getSliderX():Float {
 
-		var value : String = _jSlider.css('transform');
+		var value:String = _jSlider.css('transform');
 		return (value == 'none' || value == null) ? 0 : Std.parseFloat(value.split(',')[4]);
 
 	}
@@ -276,7 +276,7 @@ class Slider {
 		 */
 		function onClick(event:Event):Void {
 
-			var index : Int = new JQuery(event.currentTarget).data('index');
+			var index:Int = new JQuery(event.currentTarget).data('index');
 			jump(index);
 
 		}
@@ -290,8 +290,8 @@ class Slider {
 
 			var html = '<ul data-js="navi">';
 			for (i in 0 ... _jSlides.length) {
-				var jTarget : JQuery = _jSlides.eq(i).find('[data-navititle]');
-				var title   : String = (0 < jTarget.length) ? '<p>' + jTarget.data('navititle') + '</p>' : '';
+				var jTarget:JQuery = _jSlides.eq(i).find('[data-navititle]');
+				var title  :String = (0 < jTarget.length) ? '<p>' + jTarget.data('navititle') + '</p>' : '';
 
 				html += '<li data-index="$i">$title</li>';
 			}
@@ -317,9 +317,9 @@ class Slider {
 		 */
 		function onClick(event:Event):Void {
 
-			var jTarget   : JQuery = new JQuery(event.currentTarget);
-			var direction : Int    = (jTarget.hasClass('left')) ? -1 : 1;
-			var index     : Int    = _index + direction;
+			var jTarget  :JQuery = new JQuery(event.currentTarget);
+			var direction:Int    = (jTarget.hasClass('left')) ? -1 : 1;
+			var index    :Int    = _index + direction;
 
 			if ( index < 0 || _jSlides.length <= index ) return;
 			jump(index);
@@ -341,9 +341,9 @@ class Slider {
 	private function initSwipe():Void {
 
 		_isCatch = false;
-		var basepoint : Float = 0;
-		var touchPoint: Float = 0;
-		var movePoint : Float = 0;
+		var basepoint :Float = 0;
+		var touchPoint:Float = 0;
+		var movePoint :Float = 0;
 
 		/**
 		 * Touching inside the slider
@@ -352,7 +352,7 @@ class Slider {
 		 */
 		function isTouchSlider(event:Event):Bool {
 
-			var jTarget : JQuery = new JQuery(event.target);
+			var jTarget:JQuery = new JQuery(event.target);
 			return (0 < _jSlider.find(jTarget).length);
 
 		}
@@ -383,7 +383,7 @@ class Slider {
 
 			if (!_isCatch) return;
 			movePoint = event.pageX;
-			var x : Float = basepoint - (touchPoint - movePoint);
+			var x:Float = basepoint - (touchPoint - movePoint);
 			setSliderX(x);
 
 			/**
@@ -403,9 +403,9 @@ class Slider {
 			if (!_isCatch) return;
 			_isCatch = false;
 
-			var distance     : Float = touchPoint - movePoint;
-			var movedPersent : Float = Math.abs(distance) / _jSlides.outerWidth();
-			var stepCount    : Int   = 0;
+			var distance    :Float = touchPoint - movePoint;
+			var movedPersent:Float = Math.abs(distance) / _jSlides.outerWidth();
+			var stepCount   :Int   = 0;
 
 			/**
 			 * If less than 20% of the width of the slide
@@ -415,13 +415,13 @@ class Slider {
 				/**
 				 * Calculate step count
 				 */
-				var ratio : Int = Math.floor(movedPersent);
+				var ratio:Int = Math.floor(movedPersent);
 				stepCount =  (ratio < 1) ? 1 : ratio;
 				stepCount *= (0 < distance) ? 1 : -1;
 
 			}
 
-			var index : Int = _index + stepCount;
+			var index:Int = _index + stepCount;
 			if ( index < 0 ) index = 0;
 			if ( _jSlides.length <= index ) index = _jSlides.length - 1;
 

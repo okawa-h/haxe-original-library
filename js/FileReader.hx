@@ -4,6 +4,7 @@ import js.Browser.window;
 import js.html.Blob;
 import js.html.DragEvent;
 import js.html.ProgressEvent;
+import js.html.Uint8Array;
 import js.html.FileReader as NativeFileReader;
 import js.jquery.JQuery;
 import js.jquery.Event;
@@ -96,6 +97,30 @@ class FileReader {
 
 		event.preventDefault();
 		event.stopPropagation();
+
+	}
+
+	/* =======================================================================
+		Read Type
+	========================================================================== */
+	public static function readType(src:String,onLoaded:String->Void):Void {
+
+		var reader = new NativeFileReader();
+		reader.onload = function() {
+			var bytes        :Uint8Array = new Uint8Array(reader.result);
+			var imageFileType:String     = '';
+			if (bytes[0] == 0xff && bytes[1] == 0xd8 && bytes[bytes.length-2] == 0xff && bytes[bytes.length-1] == 0xd9) {
+				imageFileType = 'jpeg';
+			} else if (bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4e && bytes[3] == 0x47) {
+				imageFileType = 'png';
+			} else if (bytes[0] == 0x47 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x38) {
+				imageFileType = 'gif';
+			} else {
+				imageFileType = 'other';
+			}
+			onLoaded(imageFileType);
+		}
+		reader.readAsArrayBuffer(new js.html.Blob([ src ]));
 
 	}
 

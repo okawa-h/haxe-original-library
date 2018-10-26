@@ -1,11 +1,12 @@
 package jp.okawa.js;
 
+import js.html.Image;
 import js.jquery.JQuery;
  
 class AdjustHeight {
 
-	private var _jParent : JQuery;
-	private var _jLists  : JQuery;
+	private var _jParent:JQuery;
+	private var _jLists :JQuery;
 
 	/* =======================================================================
 		Constractor
@@ -14,7 +15,7 @@ class AdjustHeight {
 
 		_jParent = jParent;
 		_jLists  = (childName == null) ? _jParent.find('li') : _jParent.find(childName);
-		setHeight();
+		loadImage(_jLists,setHeight);
 
 	}
 
@@ -33,10 +34,10 @@ class AdjustHeight {
 	private function setHeight():Void {
 
 		clear();
-		var row    : Int   = getRow();
-		var length : Int   = _jLists.length;
-		var remain : Int   = length % row;
-		var maxH   : Float = 0;
+		var row   :Int   = getRow();
+		var length:Int   = _jLists.length;
+		var remain:Int   = length % row;
+		var maxH  :Float = 0;
 
 		for (i in 0 ... length) {
 
@@ -84,6 +85,27 @@ class AdjustHeight {
 	private function clear():Void {
 
 		_jLists.height('auto');
+
+	}
+
+	/* =======================================================================
+		Load Image
+	========================================================================== */
+	private function loadImage(jTarget:JQuery,callback:Void->Void):Void {
+
+		var jImage:JQuery = jTarget.find('img');
+		var length:Int    = jImage.length;
+
+		if (0 >= length) callback();
+		for (i in 0 ... length) {
+
+			var image:Image = new Image();
+			image.onload = function() {
+				if (0 >= length - i - 1) callback();
+			}
+			image.src = jImage.eq(i).prop('src');
+
+		}
 
 	}
 

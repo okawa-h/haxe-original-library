@@ -1,5 +1,6 @@
 package jp.okawa.js.canvas;
  
+import js.Browser;
 import js.html.CanvasElement;
 import js.html.CanvasRenderingContext2D;
 import js.html.ImageData;
@@ -19,12 +20,26 @@ class ImageProcessing {
 	}
 
 	/* =======================================================================
+		Clone Image Data
+	========================================================================== */
+	private static function cloneImageData(imageData:ImageData):ImageData {
+
+		var canvas : CanvasElement = Browser.document.createCanvasElement();
+		canvas.width  = imageData.width;
+		canvas.height = imageData.height;
+		var context : CanvasRenderingContext2D = canvas.getContext('2d');
+		context.putImageData(imageData, 0, 0);
+		return context.getImageData(0, 0, imageData.width, imageData.height);
+
+	}
+
+	/* =======================================================================
 		Image Data Counter
 	========================================================================== */
 	private static function imageDataCounter(canvas:CanvasElement,process:Uint8ClampedArray->Int->Void):Void {
 
-		var ctx : CanvasRenderingContext2D = canvas.getContext2d();
-		var imageData : ImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+		var context   : CanvasRenderingContext2D = canvas.getContext2d();
+		var imageData : ImageData = context.getImageData(0,0,canvas.width,canvas.height);
 		var units     : Uint8ClampedArray = imageData.data;
 		var index     : Int = 0;
 		var length    : Int = Math.floor(units.length * .25);
@@ -32,7 +47,55 @@ class ImageProcessing {
 			process(units,index);
 			index += 4;
 		}
-		ctx.putImageData(imageData,0,0);
+		context.putImageData(imageData,0,0);
+
+	}
+
+	/* =======================================================================
+		Draw Dot
+	========================================================================== */
+	public static function drawDot(canvas:CanvasElement,size:Int=5):Void {
+
+		var width   : Int = canvas.width;
+		var height  : Int = canvas.height;
+		var context : CanvasRenderingContext2D = canvas.getContext2d();
+		var imageData : ImageData = context.getImageData(0,0,width,height);
+		var units     : Uint8ClampedArray = imageData.data;
+
+		for (y in 0 ... height) {
+			var counter : Int = 0;
+			var flag    : Int = 1;
+			for (x in 0 ... width) {
+
+				var target : Int = (y * width + x) * 4;
+				if (counter <= 0) units[target + 3] = 0;
+
+				counter += flag;
+				if (Math.abs(counter) == size) {
+					counter = 0;
+					flag * -1;
+				}
+			}
+
+		}
+
+		context.putImageData(imageData,0,0);
+
+	}
+
+	/* =======================================================================
+		Draw Gray Scale
+	========================================================================== */
+	public static function drawGrayScale(canvas:CanvasElement):Void {
+
+		imageDataCounter(canvas,function(units:Uint8ClampedArray,index:Int):Void {
+
+			var r : Int = units[index];
+			var g : Int = units[index + 1];
+			var b : Int = units[index + 2];
+			units[index] = units[index + 1] = units[index + 2] = Math.round((r+g+b)/3);
+
+		});
 
 	}
 
@@ -105,13 +168,29 @@ class ImageProcessing {
 	========================================================================== */
 	public static function drawMosaic(canvas:CanvasElement,size:Int=10):Void {
 
-		imageDataCounter(canvas,function(units:Uint8ClampedArray,index:Int):Void {
+		var width   : Int = canvas.width;
+		var height  : Int = canvas.height;
+		var context : CanvasRenderingContext2D = canvas.getContext2d();
+		var units   : Uint8ClampedArray = context.getImageData(0,0,width,height).data;
 
-			units[index]     = 255 - units[index];
-			units[index + 1] = 255 - units[index + 1];
-			units[index + 2] = 255 - units[index + 2];
+		var y : Int = 0;
+		for (i in 0 ... height) {
+			if (height < y) break;
+			var x : Int = 0;
+			for (l in 0 ... width) {
 
-		});
+				if (width < x) break;
+				var target : Int = (y * width + x) * 4;
+				var r : Int = units[target];
+				var g : Int = units[target + 1];
+				var b : Int = units[target + 2];
+				context.fillStyle = 'rgb($r,$g,$b)';
+				context.fillRect(x, y, x + size, y + size);
+
+				x += size;
+			}
+			y += size;
+		}
 
 	}
 
@@ -140,11 +219,10 @@ class ImageProcessing {
 	========================================================================== */
 	public static function drawDetectEdge(canvas:CanvasElement):Void {
 
-		var ctx : CanvasRenderingContext2D = canvas.getContext2d();
-		var width  : Int = canvas.width;
-		var height : Int = canvas.height;
-		var imageData : ImageData = ctx.getImageData(0,0,width,height);
-		var data      : Uint8ClampedArray = imageData.data;
+		var context   : CanvasRenderingContext2D = canvas.getContext2d();
+		var width     : Int = canvas.width;
+		var height    : Int = canvas.height;
+		var data      : Uint8ClampedArray = context.getImageData(0,0,width,height).data;
 		var length    : Int = Math.floor(data.length * .25);
 		var dataQuant : Array<Float> = [];
 
@@ -160,7 +238,7 @@ class ImageProcessing {
 			
 		}
 
-		var edgeData : ImageData = ctx.createImageData(width,height);
+		var edgeData : ImageData = context.createImageData(width,height);
 		for (y in 0 ... height - 1) {
 			for (x in 0 ... width - 1) {
 
@@ -175,7 +253,69 @@ class ImageProcessing {
 			}
 		}
 
-		ctx.putImageData(edgeData,0,0);
+		context.putImageData(edgeData,0,0);
+
+	}
+
+	/* =======================================================================
+		Draw Sobel
+	========================================================================== */
+	public static function drawSobel(canvas:CanvasElement):Void {
+
+		var context : CanvasRenderingContext2D = canvas.getContext2d();
+		var width   : Int = canvas.width;
+		var height  : Int = canvas.height;
+		var imageData : ImageData = context.getImageData(0,0,width,height);
+		var units   : Uint8ClampedArray = imageData.data;
+		var cUnits  : Uint8ClampedArray = cloneImageData(imageData).data;
+		var kernelX : Array<Int> = [
+			-1,0,1,
+			-2,0,2,
+			-1,0,1
+		];
+
+		function getValue(i:Int,j:Int):Array<Int> {
+
+			var value : Array<Int> = [0,0,0];
+			var k : Int = -1;
+			while (k <= 1) {
+				var l : Int = -1;
+				while (l <= 1) {
+
+					var x : Int = j + l;
+					var y : Int = i + k;
+					if (x < 0 || width <= x || y < 0 || height <= y) {
+						l++;
+						continue;
+					}
+
+					var index1 : Int = (x + y * width) * 4;
+					var index2 : Int = (l + 1) + (k + 1) * 3;
+					value[0] += kernelX[index2] * cUnits[index1];
+					value[1] += kernelX[index2] * cUnits[index1 + 1];
+					value[2] += kernelX[index2] * cUnits[index1 + 2];
+					l++;
+				}
+				k++;
+			}
+			return value;
+
+		}
+
+		for (i in 0 ... height) {
+			for (j in 0 ... width) {
+
+				var index : Int = (j + i * width) * 4;
+				var value : Array<Int> = getValue(i,j);
+				units[index]     = value[0];
+				units[index + 1] = value[1];
+				units[index + 2] = value[2];
+				units[index + 3] = cUnits[index + 3];
+				
+			}
+		}
+
+		context.putImageData(imageData,0,0);
 
 	}
 

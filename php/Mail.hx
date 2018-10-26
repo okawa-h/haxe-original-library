@@ -8,13 +8,13 @@ import php.Lib;
 
 class Mail {
 	
-	private var _name     : String;
-	private var _from     : String;
-	private var _ccList   : Array<String>;
-	private var _bccList  : Array<String>;
-	private var _headers  : String;
-	private var _files    : Map<String,String>;
-	private var _boundary : String;
+	private var _name    :String;
+	private var _from    :String;
+	private var _ccList  :Array<String>;
+	private var _bccList :Array<String>;
+	private var _headers :String;
+	private var _files   :Map<String,String>;
+	private var _boundary:String;
 	
 	private static inline var CRLF:String = '\r\n';
 	
