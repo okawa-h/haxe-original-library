@@ -31,7 +31,7 @@ typedef Position   = Array<Array<Float>>;
 	var cycle :String = 'cycle';
 	var blend :String = 'blend';
 }
- 
+
 @:native('clm.tracker')
 extern class ClmTracker {
 
@@ -40,9 +40,9 @@ extern class ClmTracker {
 	public function init(?pModel:Dynamic):Void;
 	public function start(element:EitherType<CanvasElement,VideoElement>,?box:BoudingBox):Bool;
 	public function stop():Void;
-	
+
 	public function track(element:EitherType<CanvasElement,VideoElement>,?box:BoudingBox):Array<Int>;
-	
+
 	public function reset():Void;
 	public function draw(canvas:CanvasElement,?pv:Array<Float>,?path:DrawType):Void;
 

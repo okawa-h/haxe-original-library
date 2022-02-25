@@ -90,7 +90,7 @@ extern class Slick implements js.jquery.Plugin {
 	@:overload public function slick(method:Methods,?options1:Dynamic,?options2:Dynamic,?options3:Dynamic):JQuery;
 	@:overload public function slick(method:Methods,?options1:Dynamic,?options2:Dynamic):JQuery;
 	@:overload public function slick(method:Methods,?options:Dynamic):JQuery;
-	@:overload public function slick(?options:Settings):JQuery;
 	@:overload public function slick(?method:Methods):JQuery;
+	@:overload public function slick(?options:Settings):JQuery;
 
 }
